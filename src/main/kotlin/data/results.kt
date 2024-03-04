@@ -17,6 +17,7 @@ import org.gradle.tooling.events.task.TaskSkippedResult
 import org.gradle.tooling.events.task.TaskSuccessResult
 import org.gradle.tooling.events.task.java.JavaCompileTaskOperationResult
 import org.gradle.tooling.events.test.TestFailureResult
+import org.gradle.tooling.events.test.TestOperationResult
 import org.gradle.tooling.events.test.TestSkippedResult
 import org.gradle.tooling.events.test.TestSuccessResult
 import org.gradle.tooling.events.transform.TransformFailureResult
@@ -34,8 +35,10 @@ fun OperationResultData(result: OperationResult): OperationResultData? {
     is TaskFailureResult                 -> TaskFailureResultData(result)
     is TaskSkippedResult                 -> TaskSkippedResultData(result)
     is TaskSuccessResult                 -> TaskSuccessResultData(result)
+
     is TestSkippedResult                 -> TestSkippedResultData(result)
     is TestSuccessResult                 -> TestSuccessResultData(result)
+
     is TransformSuccessResult            -> TransformSuccessResultData(result)
     is WorkItemSuccessResult             -> WorkItemSuccessResultData(result)
 
@@ -324,23 +327,24 @@ data class TestFailureResultData(
   )
 }
 
-//@Serializable
-//data class TestOperationResultData(
-//  override val startTime: Long,
-//  override val endTime: Long,
-//) : OperationResultData {
-//  constructor(result: TestOperationResult) : this(
-//    startTime = result.startTime,
-//    endTime = result.endTime,
-//  )
-//}
+@Serializable
+sealed interface TestOperationResultData : OperationResultData
+
+fun TestOperationResultData(result: TestOperationResult): TestOperationResultData? {
+  return when (result) {
+    is TransformFailureResult -> TransformFailureResultData(result)
+    is TestSkippedResult      -> TestSkippedResultData(result)
+    is TestSuccessResult      -> TestSuccessResultData(result)
+    else                      -> null
+  }
+}
 
 @Serializable
 @SerialName("TestSkipped")
 data class TestSkippedResultData(
   override val startTime: Long,
   override val endTime: Long,
-) : OperationResultData {
+) : TestOperationResultData {
   constructor(result: TestSkippedResult) : this(
     startTime = result.startTime,
     endTime = result.endTime,
@@ -352,7 +356,7 @@ data class TestSkippedResultData(
 data class TestSuccessResultData(
   override val startTime: Long,
   override val endTime: Long,
-) : OperationResultData {
+) : TestOperationResultData {
   constructor(result: TestSuccessResult) : this(
     startTime = result.startTime,
     endTime = result.endTime,
@@ -365,7 +369,7 @@ data class TransformFailureResultData(
   override val startTime: Long,
   override val endTime: Long,
   override val failures: List<FailureData>,
-) : FailureResultData {
+) : TestOperationResultData, FailureResultData {
   constructor(result: TransformFailureResult) : this(
     startTime = result.startTime,
     endTime = result.endTime,

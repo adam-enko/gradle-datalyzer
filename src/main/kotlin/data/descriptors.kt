@@ -96,29 +96,6 @@ data class FileDownloadOperationDescriptorData(
 }
 
 
-@Serializable
-@SerialName("JvmTestOperation")
-data class JvmTestOperationDescriptorData(
-  override val name: String,
-  override val displayName: String,
-  override val parentName: String? = null,
-  val jvmTestKind: JvmTestKind,
-  val suiteName: String? = null,
-  val className: String? = null,
-  val methodName: String? = null,
-) : OperationDescriptorData {
-  constructor(desc: JvmTestOperationDescriptor) : this(
-    name = desc.name,
-    displayName = desc.displayName,
-    parentName = desc.parent?.name,
-    jvmTestKind = desc.jvmTestKind,
-    suiteName = desc.suiteName,
-    className = desc.className,
-    methodName = desc.methodName,
-  )
-}
-
-
 fun BaseProblemDescriptorData(base: BaseProblemDescriptor?): BaseProblemDescriptorData? {
   return when (base) {
     is ProblemAggregationDescriptor       -> ProblemAggregationDescriptorData(base)
@@ -233,12 +210,23 @@ data class TaskOperationDescriptorData(
 
 
 @Serializable
-@SerialName("TestOperation")
-data class TestOperationDescriptorData(
+sealed interface TestOperationDescriptorData : OperationDescriptorData
+
+fun TestOperationDescriptorData(data: TestOperationDescriptor): TestOperationDescriptorData {
+  return when (data) {
+    is JvmTestOperationDescriptor -> JvmTestOperationDescriptorData(data)
+    else                          -> DefaultTestOperationDescriptorData(data)
+  }
+}
+
+
+@Serializable
+@SerialName("DefaultTestOperation")
+data class DefaultTestOperationDescriptorData(
   override val name: String,
   override val displayName: String,
   override val parentName: String? = null,
-) : OperationDescriptorData {
+) : TestOperationDescriptorData {
   constructor(desc: TestOperationDescriptor) : this(
     name = desc.name,
     displayName = desc.displayName,
@@ -246,6 +234,27 @@ data class TestOperationDescriptorData(
   )
 }
 
+@Serializable
+@SerialName("JvmTestOperation")
+data class JvmTestOperationDescriptorData(
+  override val name: String,
+  override val displayName: String,
+  override val parentName: String? = null,
+  val jvmTestKind: JvmTestKind,
+  val suiteName: String? = null,
+  val className: String? = null,
+  val methodName: String? = null,
+) : TestOperationDescriptorData {
+  constructor(desc: JvmTestOperationDescriptor) : this(
+    name = desc.name,
+    displayName = desc.displayName,
+    parentName = desc.parent?.name,
+    jvmTestKind = desc.jvmTestKind,
+    suiteName = desc.suiteName,
+    className = desc.className,
+    methodName = desc.methodName,
+  )
+}
 
 @Serializable
 @SerialName("TestOutput")
@@ -255,7 +264,7 @@ data class TestOutputDescriptorData(
   override val parentName: String? = null,
   val destination: Destination?,
   val message: String?,
-) : OperationDescriptorData {
+) : TestOperationDescriptorData {
   constructor(desc: TestOutputDescriptor) : this(
     name = desc.name,
     displayName = desc.displayName,

@@ -150,6 +150,7 @@ fun main(args: Array<String>) {
       run("help")
       run("assemble")
       run("tasks")
+      run("test")
 //      run(":kotlin-stdlib:dependencies")
 //      run(":kotlin.kotlin-gradle-plugin-api:dependencies")
 //      run("clean")
