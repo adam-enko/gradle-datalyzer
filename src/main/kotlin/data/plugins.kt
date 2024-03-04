@@ -21,7 +21,7 @@ sealed interface PluginIdentifierData {
   val displayName: String
 
   @Serializable
-  @SerialName("BinaryPluginIdentifier")
+  @SerialName("Binary")
   data class Binary(
     override val displayName: String,
     val pluginId: String?,
@@ -35,7 +35,7 @@ sealed interface PluginIdentifierData {
   }
 
   @Serializable
-  @SerialName("ScriptPluginIdentifier")
+  @SerialName("Script")
   data class Script(
     override val displayName: String,
     val uri: String,

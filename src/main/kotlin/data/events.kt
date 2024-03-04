@@ -7,7 +7,6 @@ import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.StartEvent
 import org.gradle.tooling.events.StatusEvent
 import org.gradle.tooling.events.configuration.ProjectConfigurationFinishEvent
-import org.gradle.tooling.events.configuration.ProjectConfigurationProgressEvent
 import org.gradle.tooling.events.configuration.ProjectConfigurationStartEvent
 import org.gradle.tooling.events.download.FileDownloadFinishEvent
 import org.gradle.tooling.events.download.FileDownloadProgressEvent
@@ -17,12 +16,9 @@ import org.gradle.tooling.events.lifecycle.BuildPhaseProgressEvent
 import org.gradle.tooling.events.lifecycle.BuildPhaseStartEvent
 import org.gradle.tooling.events.problems.ProblemEvent
 import org.gradle.tooling.events.task.TaskFinishEvent
-import org.gradle.tooling.events.task.TaskOperationDescriptor
-import org.gradle.tooling.events.task.TaskProgressEvent
 import org.gradle.tooling.events.task.TaskStartEvent
 import org.gradle.tooling.events.test.TestFinishEvent
 import org.gradle.tooling.events.test.TestOutputEvent
-import org.gradle.tooling.events.test.TestProgressEvent
 import org.gradle.tooling.events.test.TestStartEvent
 import org.gradle.tooling.events.transform.TransformFinishEvent
 import org.gradle.tooling.events.transform.TransformProgressEvent
@@ -35,36 +31,39 @@ import org.gradle.tooling.events.work.WorkItemStartEvent
 @Suppress("UnstableApiUsage")
 fun ProgressEventData(event: ProgressEvent): ProgressEventData? {
   return when (event) {
-    is FileDownloadStartEvent            -> FileDownloadStartEventData(event)
-    is BuildPhaseStartEvent              -> BuildPhaseStartEventData(event)
-    is BuildPhaseFinishEvent             -> BuildPhaseFinishEventData(event)
-    is BuildPhaseProgressEvent           -> BuildPhaseProgressEventData(event)
-    is FileDownloadFinishEvent           -> FileDownloadFinishEventData(event)
-    is FileDownloadProgressEvent         -> FileDownloadProgressEventData(event)
-    is ProblemEvent                      -> ProblemEventData(event)
+    is FileDownloadStartEvent          -> FileDownloadStartEventData(event)
+    is BuildPhaseStartEvent            -> BuildPhaseStartEventData(event)
+    is BuildPhaseFinishEvent           -> BuildPhaseFinishEventData(event)
+    is BuildPhaseProgressEvent         -> BuildPhaseProgressEventData(event)
+    is FileDownloadFinishEvent         -> FileDownloadFinishEventData(event)
+    is FileDownloadProgressEvent       -> FileDownloadProgressEventData(event)
+    is ProblemEvent                    -> ProblemEventData(event)
 
-    is ProjectConfigurationStartEvent    -> ProjectConfigurationStartEventData(event)
-    is ProjectConfigurationFinishEvent   -> ProjectConfigurationFinishEventData(event)
+    is ProjectConfigurationStartEvent  -> ProjectConfigurationStartEventData(event)
+    is ProjectConfigurationFinishEvent -> ProjectConfigurationFinishEventData(event)
 //    is ProjectConfigurationProgressEvent -> ProjectConfigurationProgressEventData(event)
 
-    is StatusEvent                       -> StatusEventData(event)
-    is TaskFinishEvent                   -> TaskFinishEventData(event)
-    is TaskStartEvent                    -> TaskStartEventData(event)
-    is TestFinishEvent                   -> TestFinishEventData(event)
-    is TestOutputEvent                   -> TestOutputEventData(event)
-    is TestStartEvent                    -> TestStartEventData(event)
+    is StatusEvent                     -> StatusEventData(event)
+    is TaskFinishEvent                 -> TaskFinishEventData(event)
+    is TaskStartEvent                  -> TaskStartEventData(event)
+    is TestFinishEvent                 -> TestFinishEventData(event)
+    is TestOutputEvent                 -> TestOutputEventData(event)
+    is TestStartEvent                  -> TestStartEventData(event)
 //    is TestProgressEvent                 -> TestProgressEventData(event)
-    is TransformFinishEvent              -> TransformFinishEventData(event)
-    is TransformStartEvent               -> TransformStartEventData(event)
-    is TransformProgressEvent            -> TransformProgressEventData(event)
-    is WorkItemStartEvent                -> WorkItemStartEventData(event)
-    is WorkItemFinishEvent               -> WorkItemFinishEventData(event)
-    is WorkItemProgressEvent             -> WorkItemProgressEventData(event)
+    is TransformFinishEvent            -> TransformFinishEventData(event)
+    is TransformStartEvent             -> TransformStartEventData(event)
+    is TransformProgressEvent          -> TransformProgressEventData(event)
+    is WorkItemStartEvent              -> WorkItemStartEventData(event)
+    is WorkItemFinishEvent             -> WorkItemFinishEventData(event)
+    is WorkItemProgressEvent           -> WorkItemProgressEventData(event)
 
 //    is TaskProgressEvent                 -> TaskProgressEventData(event)
-    is StartEvent                        -> StartEventData(event)
-    is FinishEvent                       -> FinishEventData(event)
-    else                                 -> null
+    is StartEvent                      -> StartEventData(event)
+    is FinishEvent                     -> FinishEventData(event)
+    else                               -> {
+      println("Unknown event type: $event / ${event::class}")
+      null
+    }
   }
 }
 
@@ -204,11 +203,13 @@ data class ProjectConfigurationFinishEventData(
   override val displayName: String,
   override val eventTime: Long,
   override val descriptor: ProjectConfigurationOperationDescriptorData? = null,
+  val result: ProjectConfigurationOperationResultData? = null,
 ) : ProgressEventData {
   constructor(event: ProjectConfigurationFinishEvent) : this(
     displayName = event.displayName,
     eventTime = event.eventTime,
     descriptor = ProjectConfigurationOperationDescriptorData(event.descriptor),
+    result = ProjectConfigurationOperationResultData(event.result),
   )
 }
 
@@ -280,11 +281,13 @@ data class TaskFinishEventData(
   override val displayName: String,
   override val eventTime: Long,
   override val descriptor: TaskOperationDescriptorData? = null,
+  val result: TaskOperationResultData? = null,
 ) : ProgressEventData {
   constructor(event: TaskFinishEvent) : this(
     displayName = event.displayName,
     eventTime = event.eventTime,
     descriptor = TaskOperationDescriptorData(event.descriptor),
+    result = TaskOperationResultData(event.result)
   )
 }
 

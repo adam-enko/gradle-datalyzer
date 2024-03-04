@@ -1,6 +1,5 @@
 package org.jetbrains.experimental.gpde
 
-
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.context.Context
 import kotlinx.serialization.encodeToString
@@ -24,7 +23,13 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.measureTime
 
 
-fun main() {
+fun main(args: Array<String>) {
+
+  val projectDirArg = args.singleOrNull()
+    ?: "."
+//    ?: "/Users/dev/projects/jetbrains/kotlin/kotlin"
+//    ?: error("No args received. Arg must be a Gradle project directory.")
+
   val outputFile = File("output/data.txt").apply {
     parentFile.mkdirs()
   }
@@ -40,25 +45,23 @@ fun main() {
 //  gradleHomeFolder.mkdirs()
 //
     fun gradleConnector(): GradleConnector = GradleConnector.newConnector()
-      .forProjectDirectory(File("/Users/dev/projects/jetbrains/kotlin/kotlin"))
-
-
-    println("--- printing buildscripts... --- ")
-    val conn = gradleConnector().connect()
-    val gradleProject = conn.getModel(GradleProject::class.java)
-    (listOf(gradleProject) + gradleProject.children).forEach {
-      try {
-        println(
-          "${it.name} buildscript   ---   " + it.buildScript?.sourceFile?.readText()?.lines()?.joinToString(" \\n ")
-        )
-      } catch (t: Throwable) {
-        println("failed to print buildscript for ${it.name}")
-      }
-    }
-    conn.close()
-    println("--- finished printing buildscripts --- ")
+      .forProjectDirectory(File(projectDirArg))
 
     gradleConnector().connect().use { project ->
+
+      println("--- printing buildscripts... --- ")
+      val gradleProject = project.getModel(GradleProject::class.java)
+
+      (listOf(gradleProject) + gradleProject.children).forEach {
+        try {
+          println(
+            "${it.name} buildscript   ---   " + it.buildScript?.sourceFile?.readText()?.lines()?.joinToString(" \\n ")
+          )
+        } catch (t: Throwable) {
+          println("failed to print buildscript for ${it.name}")
+        }
+      }
+      println("--- finished printing buildscripts --- ")
 
       project.action { build ->
         val allProjects = ArrayDeque<BasicGradleProject>()
@@ -81,6 +84,10 @@ fun main() {
         val allGradleBuilds = ArrayDeque<GradleBuild>()
 
         build.buildModel.editableBuilds.forEach { gb ->
+
+          val settings1 = gb.rootProject.projectDirectory.resolve("settings.gradle.kts")
+          val settings2 = gb.rootProject.projectDirectory.resolve("settings.gradle")
+
           gb.rootProject
           gb.projects
           gb.editableBuilds
@@ -107,6 +114,7 @@ fun main() {
       )
 
       val ideaProject = project.getModel(IdeaProject::class.java)
+
       ideaProject.modules.forEach { im ->
 //        im.dependencies.joinToString { it.scope.scope }
         im.contentRoots.forEach { content ->
@@ -123,9 +131,12 @@ fun main() {
           .setParent(Context.current().with(mainSpan))
           .setAttribute("gradle.task.args", args.joinToString())
           .start { taskSpan ->
+
+            val listener = GpdeProgressListener(outputFile, taskSpan)
+
             val time = measureTime {
               project.newBuild().apply {
-                addProgressListener(GpdeProgressListener(outputFile, taskSpan))
+                addProgressListener(listener)
                 forTasks(task)
                 addArguments(args)
                 setStandardOutput(System.out)
@@ -137,6 +148,8 @@ fun main() {
       }
 
       run("help")
+      run("assemble")
+      run("tasks")
 //      run(":kotlin-stdlib:dependencies")
 //      run(":kotlin.kotlin-gradle-plugin-api:dependencies")
 //      run("clean")
@@ -230,6 +243,7 @@ class GpdeProgressListener(
     val dataEnc = Json.encodeToString(data)
 //    println("event: $dataEnc")
     output.println(dataEnc)
+    output.flush()
   }
 }
 

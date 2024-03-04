@@ -7,11 +7,12 @@ import org.gradle.tooling.events.OperationResult
 import org.gradle.tooling.events.SkippedResult
 import org.gradle.tooling.events.SuccessResult
 import org.gradle.tooling.events.configuration.ProjectConfigurationFailureResult
+import org.gradle.tooling.events.configuration.ProjectConfigurationOperationResult
 import org.gradle.tooling.events.configuration.ProjectConfigurationSuccessResult
 import org.gradle.tooling.events.download.FileDownloadNotFoundResult
 import org.gradle.tooling.events.download.FileDownloadResult
-import org.gradle.tooling.events.task.TaskExecutionResult
 import org.gradle.tooling.events.task.TaskFailureResult
+import org.gradle.tooling.events.task.TaskOperationResult
 import org.gradle.tooling.events.task.TaskSkippedResult
 import org.gradle.tooling.events.task.TaskSuccessResult
 import org.gradle.tooling.events.task.java.JavaCompileTaskOperationResult
@@ -39,13 +40,15 @@ fun OperationResultData(result: OperationResult): OperationResultData? {
     is WorkItemSuccessResult             -> WorkItemSuccessResultData(result)
 
     is FileDownloadNotFoundResult        -> FileDownloadNotFoundResultData(result)
-    is ProjectConfigurationSuccessResult -> ProjectConfigurationSuccessResultData(result)
     is JavaCompileTaskOperationResult    -> JavaCompileTaskOperationResultData(result)
+
+    is ProjectConfigurationSuccessResult -> ProjectConfigurationSuccessResultData(result)
     is ProjectConfigurationFailureResult -> ProjectConfigurationFailureResultData(result)
 //    is ProjectConfigurationOperationResult -> ProjectConfigurationOperationResultData(result)
+
     is SkippedResult                     -> SkippedResultData(result)
     is SuccessResult                     -> SuccessResultData(result)
-    is TaskExecutionResult               -> TaskExecutionResultData(result)
+    is TaskOperationResult               -> TaskOperationResultData(result)
 //    is TaskOperationResult                 -> TaskOperationResultData(result)
     is TestFailureResult                 -> TestFailureResultData(result)
 //    is TestOperationResult                 -> TestOperationResultData(result)
@@ -85,9 +88,53 @@ sealed interface FailureResultData : OperationResultData {
   }
 }
 
+
+fun ProjectConfigurationOperationResultData(
+  result: ProjectConfigurationOperationResult
+): ProjectConfigurationOperationResultData? {
+  return when (result) {
+    is ProjectConfigurationFailureResult -> ProjectConfigurationFailureResultData(result)
+    is ProjectConfigurationSuccessResult -> ProjectConfigurationSuccessResultData(result)
+    else                                 -> null
+  }
+}
+
+
 @Serializable
 sealed interface ProjectConfigurationOperationResultData : OperationResultData {
-  val pluginApplicationResults: List<PluginApplicationResultData>
+  val pluginApplications: List<PluginApplicationResultData>
+}
+
+
+@Serializable
+@SerialName("ProjectConfigurationFailure")
+data class ProjectConfigurationFailureResultData(
+  override val startTime: Long,
+  override val endTime: Long,
+  override val failures: List<FailureData>,
+  override val pluginApplications: List<PluginApplicationResultData>,
+) : ProjectConfigurationOperationResultData, FailureResultData {
+  constructor(result: ProjectConfigurationFailureResult) : this(
+    startTime = result.startTime,
+    endTime = result.endTime,
+    failures = result.failures.map { FailureData(it) },
+    pluginApplications = result.pluginApplicationResults.map { PluginApplicationResultData(it) },
+  )
+}
+
+
+@Serializable
+@SerialName("ProjectConfigurationSuccess")
+data class ProjectConfigurationSuccessResultData(
+  override val startTime: Long,
+  override val endTime: Long,
+  override val pluginApplications: List<PluginApplicationResultData>,
+) : ProjectConfigurationOperationResultData {
+  constructor(result: ProjectConfigurationSuccessResult) : this(
+    startTime = result.startTime,
+    endTime = result.endTime,
+    pluginApplications = result.pluginApplicationResults.map { PluginApplicationResultData(it) },
+  )
 }
 
 
@@ -158,37 +205,6 @@ data class JavaCompileTaskOperationResultData(
 }
 
 @Serializable
-@SerialName("ProjectConfigurationFailure")
-data class ProjectConfigurationFailureResultData(
-  override val startTime: Long,
-  override val endTime: Long,
-  override val failures: List<FailureData>,
-  override val pluginApplicationResults: List<PluginApplicationResultData>,
-) : ProjectConfigurationOperationResultData, FailureResultData {
-  constructor(result: ProjectConfigurationFailureResult) : this(
-    startTime = result.startTime,
-    endTime = result.endTime,
-    failures = result.failures.map { FailureData(it) },
-    pluginApplicationResults = result.pluginApplicationResults.map { PluginApplicationResultData(it) },
-  )
-}
-
-
-@Serializable
-@SerialName("ProjectConfigurationSuccess")
-data class ProjectConfigurationSuccessResultData(
-  override val startTime: Long,
-  override val endTime: Long,
-  override val pluginApplicationResults: List<PluginApplicationResultData>,
-) : ProjectConfigurationOperationResultData {
-  constructor(result: ProjectConfigurationSuccessResult) : this(
-    startTime = result.startTime,
-    endTime = result.endTime,
-    pluginApplicationResults = result.pluginApplicationResults.map { PluginApplicationResultData(it) },
-  )
-}
-
-@Serializable
 @SerialName("Skipped")
 data class SkippedResultData(
   override val startTime: Long,
@@ -212,18 +228,23 @@ data class SuccessResultData(
   )
 }
 
+
 @Serializable
-@SerialName("TaskExecution")
-data class TaskExecutionResultData(
-  override val startTime: Long,
-  override val endTime: Long,
-  val isIncremental: Boolean,
-) : OperationResultData {
-  constructor(result: TaskExecutionResult) : this(
-    startTime = result.startTime,
-    endTime = result.endTime,
-    isIncremental = result.isIncremental,
-  )
+sealed interface TaskOperationResultData : OperationResultData
+
+fun TaskOperationResultData(result: TaskOperationResult): TaskOperationResultData? {
+  return when (result) {
+    is TaskFailureResult -> TaskFailureResultData(result)
+    is TaskSkippedResult -> TaskSkippedResultData(result)
+    is TaskSuccessResult -> TaskSuccessResultData(result)
+    else                 -> null
+  }
+}
+
+@Serializable
+sealed interface TaskExecutionResultData : TaskOperationResultData {
+  val isIncremental: Boolean
+  val executionReasons: List<String>?
 }
 
 @Serializable
@@ -232,13 +253,15 @@ data class TaskFailureResultData(
   override val startTime: Long,
   override val endTime: Long,
   override val failures: List<FailureData>,
-  val isIncremental: Boolean,
-) : FailureResultData {
+  override val isIncremental: Boolean = false,
+  override val executionReasons: List<String>? = null,
+) : TaskExecutionResultData, FailureResultData {
   constructor(result: TaskFailureResult) : this(
     startTime = result.startTime,
     endTime = result.endTime,
     failures = result.failures.map { FailureData(it) },
     isIncremental = result.isIncremental,
+    executionReasons = result.executionReasons,
   )
 }
 
@@ -258,8 +281,8 @@ data class TaskFailureResultData(
 data class TaskSkippedResultData(
   override val startTime: Long,
   override val endTime: Long,
-  val skipMessage: String,
-) : OperationResultData {
+  val skipMessage: String? = null,
+) : TaskOperationResultData {
   constructor(result: TaskSkippedResult) : this(
     startTime = result.startTime,
     endTime = result.endTime,
@@ -272,16 +295,18 @@ data class TaskSkippedResultData(
 data class TaskSuccessResultData(
   override val startTime: Long,
   override val endTime: Long,
-  val isIncremental: Boolean,
-  val isUpToDate: Boolean,
-  val isFromCache: Boolean,
-) : OperationResultData {
+  override val isIncremental: Boolean = false,
+  val isUpToDate: Boolean = false,
+  val isFromCache: Boolean = false,
+  override val executionReasons: List<String>? = null,
+) : TaskExecutionResultData {
   constructor(result: TaskSuccessResult) : this(
     startTime = result.startTime,
     endTime = result.endTime,
     isIncremental = result.isIncremental,
     isUpToDate = result.isUpToDate,
     isFromCache = result.isFromCache,
+    executionReasons = result.executionReasons,
   )
 }
 

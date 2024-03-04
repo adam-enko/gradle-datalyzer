@@ -3,9 +3,12 @@ plugins {
   kotlin("plugin.serialization") version embeddedKotlinVersion
   application
   id("dev.jacomet.logging-capabilities") version "0.11.0"
+  id("example-convention")
 }
 
 group = "org.jetbrains.experimental"
+
+apply(from = "dummy.build.gradle.kts")
 
 dependencies {
   implementation(kotlin("reflect"))
@@ -55,4 +58,8 @@ application {
 
 loggingCapabilities {
   enforceSlf4JSimple()
+}
+
+kotlin {
+  jvmToolchain(8)
 }
