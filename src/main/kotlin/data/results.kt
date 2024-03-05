@@ -32,35 +32,36 @@ import org.jetbrains.experimental.gpde.data.FailureResultData.FailureData
 @Suppress("UnstableApiUsage")
 fun OperationResultData(result: OperationResult): OperationResultData? {
   return when (result) {
+
     is TaskFailureResult                 -> TaskFailureResultData(result)
     is TaskSkippedResult                 -> TaskSkippedResultData(result)
     is TaskSuccessResult                 -> TaskSuccessResultData(result)
+    is JavaCompileTaskOperationResult    -> JavaCompileTaskOperationResultData(result)
+    is TaskOperationResult               -> TaskOperationResultData(result)
 
     is TestSkippedResult                 -> TestSkippedResultData(result)
     is TestSuccessResult                 -> TestSuccessResultData(result)
+    is TestFailureResult                 -> TestFailureResultData(result)
 
-    is TransformSuccessResult            -> TransformSuccessResultData(result)
-    is WorkItemSuccessResult             -> WorkItemSuccessResultData(result)
 
     is FileDownloadNotFoundResult        -> FileDownloadNotFoundResultData(result)
-    is JavaCompileTaskOperationResult    -> JavaCompileTaskOperationResultData(result)
 
     is ProjectConfigurationSuccessResult -> ProjectConfigurationSuccessResultData(result)
     is ProjectConfigurationFailureResult -> ProjectConfigurationFailureResultData(result)
-//    is ProjectConfigurationOperationResult -> ProjectConfigurationOperationResultData(result)
 
-    is SkippedResult                     -> SkippedResultData(result)
-    is SuccessResult                     -> SuccessResultData(result)
-    is TaskOperationResult               -> TaskOperationResultData(result)
-//    is TaskOperationResult                 -> TaskOperationResultData(result)
-    is TestFailureResult                 -> TestFailureResultData(result)
-//    is TestOperationResult                 -> TestOperationResultData(result)
+
+    is TransformSuccessResult            -> TransformSuccessResultData(result)
     is TransformFailureResult            -> TransformFailureResultData(result)
     is TransformOperationResult          -> TransformOperationResultData(result)
+
+    is WorkItemSuccessResult             -> WorkItemSuccessResultData(result)
     is WorkItemFailureResult             -> WorkItemFailureResultData(result)
     is WorkItemOperationResult           -> WorkItemOperationResultData(result)
 
     is FileDownloadResult                -> FileDownloadResultData(result)
+
+    is SkippedResult                     -> SkippedResultData(result)
+    is SuccessResult                     -> SuccessResultData(result)
 //    is FailureResult                       -> FailureResultData(result)
 
     else                                 -> null
