@@ -104,7 +104,7 @@ internal class GpdeCommand : CliktCommand() {
 //        im.dependencies.joinToString { it.scope.scope }
         im.contentRoots.forEach { content ->
           content.sourceDirectories.forEach { src ->
-            reporter.log("${ideaProject.name} - src${if (src.isGenerated) "generated" else ""}: ${src.directory.invariantSeparatorsPath}")
+            reporter.log("sourceDirectory - ${ideaProject.name} - src${if (src.isGenerated) "generated" else ""}: ${src.directory.invariantSeparatorsPath}")
           }
         }
       }
@@ -128,6 +128,8 @@ internal class GpdeCommand : CliktCommand() {
             }
           }
           reporter.log(" ~ ran $task in $time")
+        } catch (t: Throwable) {
+          reporter.log("task $task failed $t ${t.stackTraceToString()}")
         } finally {
           taskStdout.flush()
           taskStdout.close()
@@ -138,9 +140,9 @@ internal class GpdeCommand : CliktCommand() {
 
 //      run("clean")
       run("help", listOf("--no-configuration-cache", "--no-build-cache", "--rerun-tasks"))
-      run("assemble")
       run("tasks")
-      run("check")
+      run("assemble")
+//      run("check")
 //      run(":kotlin-stdlib:dependencies")
 //      run(":kotlin.kotlin-gradle-plugin-api:dependencies")
 //      run("clean")
