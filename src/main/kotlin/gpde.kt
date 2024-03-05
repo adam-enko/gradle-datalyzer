@@ -147,10 +147,11 @@ fun main(args: Array<String>) {
           }
       }
 
+//      run("clean")
       run("help")
       run("assemble")
       run("tasks")
-      run("test")
+      run("check")
 //      run(":kotlin-stdlib:dependencies")
 //      run(":kotlin.kotlin-gradle-plugin-api:dependencies")
 //      run("clean")
@@ -223,7 +224,7 @@ class GpdeProgressListener(
           //        val parent = event.descriptor.parent?.let { spans[it] }
 
           //        val span = Metrics.tracer.spanBuilder(eventDescName).apply {
-          val span = Metrics.tracer.spanBuilder(parent.displayName)
+          val span = Metrics.tracer.spanBuilder(event.displayName)
             .setParent(Context.current().with(parentSpan ?: taskSpan))
             .startSpan()
 
