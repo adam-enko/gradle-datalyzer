@@ -11,19 +11,19 @@ Required information:
 7. Convention plugins location (none, remote, local?) ✅
 8. "Custom logic" (maybe we can measure cyclomatic complexity?) ✅
 9. Task graph for typical builds, tests, local dev, CI
-10. Are there custom lifecycle tasks?
+10. Are there custom lifecycle tasks? 🟠(can see all tasks, but it might not be clear which are custom or not)
 11. What Gradle features are enabled?
-    * build cache (local or remote?)
+    * build cache (local or remote?) (🟠 can be inferred)
     * config cache
     * build scans
     * parallel
     * Test parallelization
-12. Dependency management:
+12. Dependency management: ❌
     * version catalog
     * BOMs
     * java-platform
     * dynamic versioning
     * dependency locking
-13. What plugins are applied?
-14. Dependency graph (how many)
-15. What dependency repositories are defined? In what order?
+13. What plugins are applied? ✅
+14. Dependency graph (how many) 🟠 not sure
+15. What dependency repositories are defined? In what order? ✅
