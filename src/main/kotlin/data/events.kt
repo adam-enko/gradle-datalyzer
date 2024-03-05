@@ -11,7 +11,6 @@ import org.gradle.tooling.events.configuration.ProjectConfigurationStartEvent
 import org.gradle.tooling.events.download.FileDownloadFinishEvent
 import org.gradle.tooling.events.download.FileDownloadStartEvent
 import org.gradle.tooling.events.lifecycle.BuildPhaseFinishEvent
-import org.gradle.tooling.events.lifecycle.BuildPhaseProgressEvent
 import org.gradle.tooling.events.lifecycle.BuildPhaseStartEvent
 import org.gradle.tooling.events.problems.ProblemEvent
 import org.gradle.tooling.events.task.TaskFinishEvent
@@ -20,15 +19,13 @@ import org.gradle.tooling.events.test.TestFinishEvent
 import org.gradle.tooling.events.test.TestOutputEvent
 import org.gradle.tooling.events.test.TestStartEvent
 import org.gradle.tooling.events.transform.TransformFinishEvent
-import org.gradle.tooling.events.transform.TransformProgressEvent
 import org.gradle.tooling.events.transform.TransformStartEvent
 import org.gradle.tooling.events.work.WorkItemFinishEvent
-import org.gradle.tooling.events.work.WorkItemProgressEvent
 import org.gradle.tooling.events.work.WorkItemStartEvent
 
 
 @Suppress("UnstableApiUsage")
-fun ProgressEventData(event: ProgressEvent): ProgressEventData? {
+fun ProgressEventData(event: ProgressEvent): ProgressEventData {
   return when (event) {
     is BuildPhaseStartEvent            -> BuildPhaseStartEventData(event)
     is BuildPhaseFinishEvent           -> BuildPhaseFinishEventData(event)
@@ -59,10 +56,7 @@ fun ProgressEventData(event: ProgressEvent): ProgressEventData? {
 //    is TaskProgressEvent                 -> TaskProgressEventData(event)
     is StartEvent                      -> StartEventData(event)
     is FinishEvent                     -> FinishEventData(event)
-    else                               -> {
-      println("Unknown event type: $event / ${event::class}")
-      null
-    }
+    else                               -> UnknownEventData(event)
   }
 }
 
@@ -80,6 +74,21 @@ sealed interface ProgressEventData {
 //  val eventTime: Long
 //  val descriptor: OperationDescriptorData?
 //}
+
+
+@Serializable
+@SerialName("Unknown")
+data class UnknownEventData(
+  override val displayName: String,
+  override val eventTime: Long,
+  override val descriptor: OperationDescriptorData? = null,
+) : ProgressEventData {
+  constructor(event: ProgressEvent) : this(
+    displayName = event.displayName,
+    eventTime = event.eventTime,
+    descriptor = OperationDescriptorData(event.descriptor),
+  )
+}
 
 
 @Serializable

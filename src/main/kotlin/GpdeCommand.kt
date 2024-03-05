@@ -9,19 +9,18 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.model.GradleProject
-import org.gradle.tooling.model.HasGradleProject
 import org.gradle.tooling.model.build.BuildEnvironment
-import org.gradle.tooling.model.eclipse.EclipseProject
-import org.gradle.tooling.model.gradle.BasicGradleProject
-import org.gradle.tooling.model.gradle.GradleBuild
 import org.gradle.tooling.model.idea.IdeaProject
 import org.jetbrains.experimental.gpde.handlers.GradleProjectModelHandler
-import org.jetbrains.experimental.gpde.utils.TerminalOutputStream
+import org.jetbrains.experimental.gpde.utils.replaceNonAlphaNumeric
 import java.io.File
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME
-import kotlin.io.path.*
+import kotlin.io.path.Path
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.walk
 import kotlin.time.measureTime
 
 
@@ -35,18 +34,16 @@ internal class GpdeCommand : CliktCommand() {
   private val outputDir: Path by option(help = "Output report directory")
     .path()
     .defaultLazy {
-      val prettyDate = ZonedDateTime.now().format(ISO_ZONED_DATE_TIME)
-        .map { if (it.isLetterOrDigit()) it else "-" }.joinToString("")
-      Path("./reports/${prettyDate}/")
+      val datetime = ZonedDateTime.now().format(ISO_ZONED_DATE_TIME).replaceNonAlphaNumeric()
+      Path("./reports/${datetime}/")
     }
     .check("Must be an empty directory") {
-      @OptIn(ExperimentalPathApi::class)
       !it.exists() || it.isDirectory() && it.walk().drop(1).count() == 0
     }
 
   override fun run() {
 
-    val reporter = Reporter(outputDir)
+    val reporter = Reporter(outputDir, terminal)
 
     val outputFile = File("output/data.txt").apply {
       parentFile.mkdirs()
@@ -58,61 +55,48 @@ internal class GpdeCommand : CliktCommand() {
 
     gradleConnector.connect().use { connection ->
 
-      println("--- printing buildscripts... --- ")
-
       val gpmh = GradleProjectModelHandler(reporter)
       connection.getModel(GradleProject::class.java, gpmh)
 
-
       connection.action { build ->
-        val allProjects = ArrayDeque<BasicGradleProject>()
+//        val allProjects = ArrayDeque<BasicGradleProject>()
+//
+//        build.buildModel.projects.forEach { p ->
+//          allProjects.add(p)
+//          allProjects.addAll(p.children)
+//        }
+//
+//        val allGradleBuilds = ArrayDeque<GradleBuild>()
 
-        build.buildModel.let { bm -> if (bm is HasGradleProject) bm.gradleProject else null }
-          ?.let { gp ->
-            println("!!! project ${gp.buildScript?.sourceFile?.readText()?.lines()?.joinToString(" \\n ")} ")
-          }
-
-        build.buildModel.projects.forEach { p ->
-          allProjects.add(p)
-          allProjects.addAll(p.children)
-
-          if (p is HasGradleProject) {
-            println("project ${p.gradleProject?.buildScript?.sourceFile?.readText()?.lines()?.joinToString(" \\n ")} ")
-          }
-        }
-
-
-        val allGradleBuilds = ArrayDeque<GradleBuild>()
 
         build.buildModel.editableBuilds.forEach { gb ->
+          listOf(
+            gb.rootProject.projectDirectory.resolve("settings.gradle.kts"),
+            gb.rootProject.projectDirectory.resolve("settings.gradle"),
+          ).forEach { settings ->
+            if (settings.exists() && settings.isFile) {
+              reporter.collectScript("${gb.rootProject.name} settings.gradle", settings)
+            }
+          }
 
-          val settings1 = gb.rootProject.projectDirectory.resolve("settings.gradle.kts")
-          val settings2 = gb.rootProject.projectDirectory.resolve("settings.gradle")
-
-          gb.rootProject
-          gb.projects
-          gb.editableBuilds
-          gb.includedBuilds
+//          gb.rootProject
+//          gb.projects
+//          gb.editableBuilds
+//          gb.includedBuilds
         }
-        build.buildModel.includedBuilds.forEach { gb ->
-          gb.projects
-          gb.editableBuilds
-          gb.includedBuilds
-        }
+//        build.buildModel.includedBuilds.forEach { gb ->
+//          gb.projects
+//          gb.editableBuilds
+//          gb.includedBuilds
+//        }
       }
 
 
       val buildEnvironment = connection.getModel(BuildEnvironment::class.java)
-      println("buildEnvironment.gradle.gradleVersion ${buildEnvironment.gradle.gradleVersion}")
-      println("buildEnvironment.buildIdentifier ${buildEnvironment.buildIdentifier}")
-      println("buildEnvironment.java.javaHome ${buildEnvironment.java.javaHome.invariantSeparatorsPath}")
-      println("buildEnvironment.java.jvmArguments ${buildEnvironment.java.jvmArguments.joinToString()}")
-
-      val eclipseProject = connection.getModel(EclipseProject::class.java)
-      println(
-        "eclipseProject.gradleProject.buildScript" +
-            eclipseProject.gradleProject.buildScript?.sourceFile?.readText()?.lines()?.joinToString(" \\n ")
-      )
+      reporter.log("buildEnvironment.gradle.gradleVersion ${buildEnvironment.gradle.gradleVersion}")
+      reporter.log("buildEnvironment.buildIdentifier ${buildEnvironment.buildIdentifier}")
+      reporter.log("buildEnvironment.java.javaHome ${buildEnvironment.java.javaHome.invariantSeparatorsPath}")
+      reporter.log("buildEnvironment.java.jvmArguments ${buildEnvironment.java.jvmArguments.joinToString()}")
 
       val ideaProject = connection.getModel(IdeaProject::class.java)
 
@@ -120,28 +104,40 @@ internal class GpdeCommand : CliktCommand() {
 //        im.dependencies.joinToString { it.scope.scope }
         im.contentRoots.forEach { content ->
           content.sourceDirectories.forEach { src ->
-            println("${ideaProject.name} - src${if (src.isGenerated) "generated" else ""}: ${src.directory.invariantSeparatorsPath}")
+            reporter.log("${ideaProject.name} - src${if (src.isGenerated) "generated" else ""}: ${src.directory.invariantSeparatorsPath}")
           }
         }
       }
 
       fun run(task: String, args: List<String> = emptyList()) {
-        val listener = GpdeProgressListener(outputFile)
+        reporter.log("Running task $task, args:$args")
 
-        val time = measureTime {
-          connection.newBuild().apply {
-            addProgressListener(listener)
-            forTasks(task)
-            addArguments(args)
-            setStandardOutput(TerminalOutputStream(terminal))
-            run()
+        val taskStdout = reporter.taskOutput(task)
+        val taskData = reporter.taskData(task)
+
+        try {
+          val listener = GpdeProgressListener(taskData)
+
+          val time = measureTime {
+            connection.newBuild().apply {
+              addProgressListener(listener)
+              forTasks(task)
+              addArguments(args)
+              setStandardOutput(taskStdout)
+              run()
+            }
           }
+          reporter.log(" ~ ran $task in $time")
+        } finally {
+          taskStdout.flush()
+          taskStdout.close()
+          taskData.flush()
+          taskData.close()
         }
-        println(" ~ ran '$task' in $time")
       }
 
 //      run("clean")
-      run("help")
+      run("help", listOf("--no-configuration-cache", "--no-build-cache", "--rerun-tasks"))
       run("assemble")
       run("tasks")
       run("check")

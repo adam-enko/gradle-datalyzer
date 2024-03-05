@@ -17,14 +17,17 @@ internal class GradleProjectModelHandler(
     (listOf(result) + result.children).forEach { gp ->
       try {
         reporter.collectScript(gp.name, gp.buildScript?.sourceFile)
+        reporter.log("collected buildscript for ${gp.name}")
       } catch (t: Throwable) {
-        reporter.log("failed to print buildscript for ${gp.name} : $t")
+        reporter.log("failed to print buildscript for ${gp.name} : $t ${t.stackTraceToString()}")
       }
     }
-    reporter.log("--- finished printing buildscripts --- ")
   }
 
   override fun onFailure(failure: GradleConnectionException?) {
-
+    reporter.log(
+      "GradleProjectModelHandler failed to get GradleProject $failure\n" +
+          failure?.stackTraceToString()?.prependIndent("  ")
+    )
   }
 }

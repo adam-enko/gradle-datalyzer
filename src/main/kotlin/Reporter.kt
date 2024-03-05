@@ -1,5 +1,9 @@
 package org.jetbrains.experimental.gpde
 
+import com.github.ajalt.mordant.terminal.Terminal
+import org.jetbrains.experimental.gpde.utils.replaceNonAlphaNumeric
+import java.io.BufferedOutputStream
+import java.io.BufferedWriter
 import java.io.File
 import java.nio.file.Path
 import java.util.zip.ZipEntry
@@ -7,7 +11,8 @@ import java.util.zip.ZipOutputStream
 import kotlin.io.path.*
 
 internal class Reporter(
-  private val outputDir: Path
+  private val outputDir: Path,
+  private val terminal: Terminal,
 ) {
   private val scripts = outputDir.resolve("scripts.md")
   private val log = outputDir.resolve("output.log")
@@ -53,7 +58,24 @@ internal class Reporter(
   }
 
 
+  fun taskOutput(taskName: String): BufferedOutputStream {
+    return outputDir
+      .resolve("task-stdout-${taskName.replaceNonAlphaNumeric()}-${System.currentTimeMillis()}.txt")
+      .createFile()
+      .outputStream()
+      .buffered()
+  }
+
+  fun taskData(taskName: String): BufferedWriter {
+    return outputDir
+      .resolve("task-data-${taskName.replaceNonAlphaNumeric()}-${System.currentTimeMillis()}.txt")
+      .createFile()
+      .bufferedWriter()
+  }
+
+
   fun log(msg: String) {
+    terminal.muted(msg)
     logWriter.appendLine(msg)
     logWriter.flush()
   }

@@ -6,6 +6,8 @@ import org.gradle.tooling.events.BinaryPluginIdentifier
 import org.gradle.tooling.events.PluginIdentifier
 import org.gradle.tooling.events.ScriptPluginIdentifier
 import org.gradle.tooling.events.configuration.ProjectConfigurationOperationResult
+import kotlin.io.path.readText
+import kotlin.io.path.toPath
 
 
 fun PluginIdentifierData(ident: PluginIdentifier?): PluginIdentifierData? {
@@ -39,12 +41,12 @@ sealed interface PluginIdentifierData {
   data class Script(
     override val displayName: String,
     val uri: String,
-//    val content: String,
+    val content: String?,
   ) : PluginIdentifierData {
     constructor(ident: ScriptPluginIdentifier) : this(
       displayName = ident.displayName,
       uri = ident.uri.toString(),
-//      content = ident.uri,
+      content = kotlin.runCatching { ident.uri?.toPath()?.readText() }.getOrNull(),
     )
   }
 }
