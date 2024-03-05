@@ -7,13 +7,13 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.defaultLazy
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
+import com.github.ajalt.mordant.animation.textAnimation
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.idea.IdeaProject
 import org.jetbrains.experimental.gpde.handlers.GradleProjectModelHandler
 import org.jetbrains.experimental.gpde.utils.replaceNonAlphaNumeric
-import java.io.File
 import java.nio.file.Path
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME
@@ -26,12 +26,12 @@ import kotlin.time.measureTime
 
 internal class GpdeCommand : CliktCommand() {
 
-  private val gradleProjectDir: Path by option(help = "Location of the Gradle Project")
+  private val gradleProjectDir: Path by option("--project", help = "Location of the Gradle Project")
     .path()
     .default(Path("."))
     .check("Must be a directory, but was a file") { it.isDirectory() }
 
-  private val outputDir: Path by option(help = "Output report directory")
+  private val reportsDir: Path by option("--reports", help = "Output reports directory")
     .path()
     .defaultLazy {
       val datetime = ZonedDateTime.now().format(ISO_ZONED_DATE_TIME).replaceNonAlphaNumeric()
@@ -42,19 +42,22 @@ internal class GpdeCommand : CliktCommand() {
     }
 
   override fun run() {
+    terminal.info("starting gradle-project-data-extractor...")
 
-    val reporter = Reporter(outputDir, terminal)
+    val reporter = Reporter(reportsDir, terminal)
 
-    val outputFile = File("output/data.txt").apply {
-      parentFile.mkdirs()
-    }
-    outputFile.writeText("")
+    collectBuildScriptData(reporter)
+    collectTaskData(reporter)
+  }
 
-    val gradleConnector: GradleConnector = GradleConnector.newConnector()
-      .forProjectDirectory(gradleProjectDir.toFile())
+  private fun gradleConnector(): GradleConnector = GradleConnector.newConnector()
+    .forProjectDirectory(gradleProjectDir.toFile())
 
-    gradleConnector.connect().use { connection ->
+  private fun collectBuildScriptData(
+    reporter: Reporter,
+  ) {
 
+    gradleConnector().connect().use { connection ->
       val gpmh = GradleProjectModelHandler(reporter)
       connection.getModel(GradleProject::class.java, gpmh)
 
@@ -108,15 +111,25 @@ internal class GpdeCommand : CliktCommand() {
           }
         }
       }
+    }
+  }
+
+  private fun collectTaskData(reporter: Reporter) {
+
+
+    gradleConnector().connect().use { connection ->
+
 
       fun run(task: String, args: List<String> = emptyList()) {
         reporter.log("Running task $task, args:$args")
+
+        val anim = terminal.textAnimation<String> { txt -> txt }
 
         val taskStdout = reporter.taskOutput(task)
         val taskData = reporter.taskData(task)
 
         try {
-          val listener = GpdeProgressListener(taskData)
+          val listener = GpdeProgressListener(taskData, anim)
 
           val time = measureTime {
             connection.newBuild().apply {
@@ -124,6 +137,7 @@ internal class GpdeCommand : CliktCommand() {
               forTasks(task)
               addArguments(args)
               setStandardOutput(taskStdout)
+              setStandardError(taskStdout)
               run()
             }
           }
@@ -135,6 +149,7 @@ internal class GpdeCommand : CliktCommand() {
           taskStdout.close()
           taskData.flush()
           taskData.close()
+          anim.stop()
         }
       }
 
@@ -148,7 +163,8 @@ internal class GpdeCommand : CliktCommand() {
 //      run("clean")
 //      run("assemble", args = listOf("--no-build-cache"))
 
-      reporter.zip()
+      val zipName = reporter.zip()
+      terminal.success("Created zip report $zipName")
     }
   }
 }

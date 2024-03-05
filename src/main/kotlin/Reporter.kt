@@ -11,14 +11,14 @@ import java.util.zip.ZipOutputStream
 import kotlin.io.path.*
 
 internal class Reporter(
-  private val outputDir: Path,
+  private val reportsDir: Path,
   private val terminal: Terminal,
 ) {
-  private val scripts = outputDir.resolve("scripts.md")
-  private val log = outputDir.resolve("output.log")
+  private val scripts = reportsDir.resolve("scripts.md")
+  private val log = reportsDir.resolve("output.log")
 
   init {
-    outputDir.createDirectories()
+    reportsDir.createDirectories()
     scripts.createFile()
     log.createFile()
   }
@@ -59,7 +59,7 @@ internal class Reporter(
 
 
   fun taskOutput(taskName: String): BufferedOutputStream {
-    return outputDir
+    return reportsDir
       .resolve("task-stdout-${taskName.replaceNonAlphaNumeric()}-${System.currentTimeMillis()}.txt")
       .createFile()
       .outputStream()
@@ -67,7 +67,7 @@ internal class Reporter(
   }
 
   fun taskData(taskName: String): BufferedWriter {
-    return outputDir
+    return reportsDir
       .resolve("task-data-${taskName.replaceNonAlphaNumeric()}-${System.currentTimeMillis()}.txt")
       .createFile()
       .bufferedWriter()
@@ -79,16 +79,16 @@ internal class Reporter(
     logWriter.flush()
   }
 
-  fun zip() {
-    val zipFile = outputDir.parent.resolve("${outputDir.name}.zip").apply {
+  fun zip(): String {
+    val zipFile = reportsDir.parent.resolve("${reportsDir.name}.zip").apply {
       if (exists()) deleteExisting()
       createFile()
     }
 
     ZipOutputStream(zipFile.outputStream().buffered()).use { zip ->
-      outputDir.walk().forEach { src ->
+      reportsDir.walk().forEach { src ->
         val zipFileName = src.absolute().invariantSeparatorsPathString
-          .removePrefix(outputDir.absolute().invariantSeparatorsPathString)
+          .removePrefix(reportsDir.absolute().invariantSeparatorsPathString)
           .removePrefix("/")
           .let { if (src.isDirectory()) "$it/" else it }
 
@@ -100,5 +100,7 @@ internal class Reporter(
         }
       }
     }
+
+    return zipFile.name
   }
 }

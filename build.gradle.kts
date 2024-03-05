@@ -1,9 +1,9 @@
 plugins {
+  id("gpde.base")
   kotlin("jvm") version embeddedKotlinVersion
   kotlin("plugin.serialization") version embeddedKotlinVersion
   application
   id("dev.jacomet.logging-capabilities") version "0.11.0"
-  id("gpde.base")
 }
 
 group = "org.jetbrains.experimental.gpde"
@@ -36,4 +36,12 @@ kotlin {
   compilerOptions {
     optIn.addAll("kotlin.io.path.ExperimentalPathApi")
   }
+}
+
+tasks.distZip {
+  archiveVersion.set("")
+}
+
+tasks.distTar {
+  archiveVersion.set("")
 }

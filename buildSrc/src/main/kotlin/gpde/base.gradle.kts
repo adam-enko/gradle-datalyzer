@@ -1,12 +1,15 @@
 package gpde
 
-import org.gradle.api.tasks.testing.Test
-import org.gradle.kotlin.dsl.withType
-
 plugins {
   base
 }
 
 tasks.withType<Test>().configureEach {
   useJUnitPlatform()
+}
+
+tasks.withType<AbstractArchiveTask>().configureEach {
+  // https://docs.gradle.org/current/userguide/working_with_files.html#sec:reproducible_archives
+  isPreserveFileTimestamps = false
+  isReproducibleFileOrder = true
 }
