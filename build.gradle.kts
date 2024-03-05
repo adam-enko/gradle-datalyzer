@@ -3,12 +3,11 @@ plugins {
   kotlin("plugin.serialization") version embeddedKotlinVersion
   application
   id("dev.jacomet.logging-capabilities") version "0.11.0"
-  id("example-convention")
+  id("gpde.base")
 }
 
-group = "org.jetbrains.experimental"
-
-apply(from = "dummy.build.gradle.kts")
+group = "org.jetbrains.experimental.gpde"
+version = "0.0.0-SNAPSHOT"
 
 dependencies {
   implementation(kotlin("reflect"))
@@ -22,10 +21,6 @@ dependencies {
   implementation("com.github.ajalt.clikt:clikt:4.2.2")
 
   testImplementation(kotlin("test"))
-}
-
-tasks.withType<Test>().configureEach {
-  useJUnitPlatform()
 }
 
 application {

@@ -73,7 +73,6 @@ internal class Reporter(
       .bufferedWriter()
   }
 
-
   fun log(msg: String) {
     terminal.muted(msg)
     logWriter.appendLine(msg)
