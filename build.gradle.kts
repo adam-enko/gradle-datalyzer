@@ -19,6 +19,8 @@ dependencies {
 
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
+  implementation("com.github.ajalt.clikt:clikt:4.2.2")
+
   testImplementation(kotlin("test"))
 }
 
@@ -27,7 +29,7 @@ tasks.withType<Test>().configureEach {
 }
 
 application {
-  mainClass = "org.jetbrains.experimental.gpde.GpdeKt"
+  mainClass = "org.jetbrains.experimental.gpde.MainKt"
 }
 
 loggingCapabilities {
@@ -36,4 +38,7 @@ loggingCapabilities {
 
 kotlin {
   jvmToolchain(8)
+  compilerOptions {
+    optIn.addAll("kotlin.io.path.ExperimentalPathApi")
+  }
 }

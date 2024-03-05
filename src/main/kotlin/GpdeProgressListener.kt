@@ -8,7 +8,7 @@ import org.jetbrains.experimental.gpde.data.ProgressEventData
 import java.io.File
 
 
-class GpdeProgressListener(
+internal class GpdeProgressListener(
   output: File,
 ) : ProgressListener {
 
