@@ -10,9 +10,6 @@ gpde is only intended to be used by JetBrains research participants.
 2. Unzip gpde into the project directory to be analyzed.
 3. Run gpde:
 
-   > [!IMPORTANT]  
-   > gpde must be run with the same Java version used to run Gradle
-
    *Linux/Mac*
 
     ```shell
@@ -26,6 +23,9 @@ gpde is only intended to be used by JetBrains research participants.
     ```                      
 4. Wait for the report to finish.
 5. Share the zipped report.
+
+> [!IMPORTANT]  
+> gpde must be run with the same Java version used to run Gradle.
 
 ### Options
 
