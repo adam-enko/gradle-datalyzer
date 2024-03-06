@@ -49,10 +49,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Checkout the repo
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.checkout-ref || github.ref }}
+#      - name: Checkout the repo
+#        uses: actions/checkout@v4
+#        with:
+#          ref: ${{ inputs.checkout-ref || github.ref }}
 
       - name: Download datalyzer.zip
         uses: actions/download-artifact@v4
@@ -65,3 +65,4 @@ jobs:
           gh release upload ${{ github.event.release.tag_name || inputs.checkout-ref }} datalyzer.zip
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
+          GH_REPO: "${{ github.repository_owner }}/${{ github.event.repository.name }}"
