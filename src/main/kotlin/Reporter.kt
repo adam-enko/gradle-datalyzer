@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: © 2024 JetBrains s.r.o.
 // SPDX-License-Identifier: Apache-2.0
-package org.jetbrains.experimental.gpde
+package org.jetbrains.experimental.gradle.datalyzer
 
 import com.github.ajalt.mordant.terminal.Terminal
-import org.jetbrains.experimental.gpde.utils.replaceNonAlphaNumeric
+import org.jetbrains.experimental.gradle.datalyzer.utils.replaceNonAlphaNumeric
 import java.io.BufferedOutputStream
 import java.io.BufferedWriter
 import java.io.File

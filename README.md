@@ -1,38 +1,38 @@
-# Gradle Project Data Extractor
+# Gradle Datalyzer
 
-Gradle Project Data Extractor (gpde) is a tool for gathering an overview about a Gradle project.
+Gradle Datalyzer is a tool for gathering an overview about a Gradle project.
 
-gpde is only intended to be used by JetBrains research participants.
+Datalyzer is only intended to be used by JetBrains research participants.
 
 ### Usage
 
-1. Download gpde from the GitHub releases page.
-2. Unzip gpde into the project directory to be analyzed.
-3. Run gpde:
+1. Download Datalyzer from the GitHub releases page.
+2. Unzip Datalyzer into the project directory to be analyzed.
+3. Run Datalyzer:
 
    *Linux/Mac*
 
     ```shell
-    ./gpde/bin/gpde
+    ./datalyzer/bin/datalyzer
     ```
 
    *Windows*
 
     ```shell
-    .\gpde\bin\gpde.bat
+    .\datalyzer\bin\datalyzer.bat
     ```                      
 4. Wait for the report to finish.
 5. Share the zipped report.
 
 > [!IMPORTANT]  
-> gpde must be run with the same Java version used to run Gradle.
+> datalyzer must be run with the same Java version used to run Gradle.
 
 ### Options
 
-<!-- Do not edit gpde-options - they are automatically generated -->
+<!-- Do not edit datalyzer-options - they are automatically generated -->
 
-```shell gpde-options
-Usage: gpde [<options>]
+```shell datalyzer-options
+Usage: datalyzer [<options>]
 
 Options:
   --projectDir=<path>  Location of the Gradle Project

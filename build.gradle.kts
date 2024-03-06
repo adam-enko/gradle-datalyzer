@@ -4,14 +4,14 @@ import org.gradle.api.tasks.PathSensitivity.NONE
 import org.gradle.kotlin.dsl.support.serviceOf
 
 plugins {
-  id("gpde.base")
+  id("datalyzer.base")
   kotlin("jvm") version embeddedKotlinVersion
   kotlin("plugin.serialization") version embeddedKotlinVersion
   application
   id("dev.jacomet.logging-capabilities") version "0.11.0"
 }
 
-group = "org.jetbrains.experimental.gpde"
+group = "org.jetbrains.experimental.gradle.datalyzer"
 version = "0.0.0-SNAPSHOT"
 
 dependencies {
@@ -29,8 +29,8 @@ dependencies {
 }
 
 application {
-  applicationName = "gpde"
-  mainClass = "org.jetbrains.experimental.gpde.MainKt"
+  applicationName = "datalyzer"
+  mainClass = "org.jetbrains.experimental.gradle.datalyzer.MainKt"
 }
 
 loggingCapabilities {
@@ -60,34 +60,34 @@ val updateReadMeUsage by tasks.registering {
   outputs.file(readme).withPropertyName("readme")
 
   dependsOn(tasks.installDist)
-  val gpde = tasks.installDist.map { it.destinationDir.resolve("bin/gpde") }
-  inputs.file(gpde).withPropertyName("gpde").withPathSensitivity(NONE)
+  val datalyzer = tasks.installDist.map { it.destinationDir.resolve("bin/datalyzer") }
+  inputs.file(datalyzer).withPropertyName("datalyzer").withPathSensitivity(NONE)
 
   onlyIf { "win" !in System.getProperty("os.name").lowercase() }
 
   val providers = serviceOf<ProviderFactory>()
 
-  val gpdeOptionsStartTag = "```shell gpde-options"
+  val optionsBlockStartTag = "```shell datalyzer-options"
 
   doLast {
     @Suppress("UnstableApiUsage")
-    val gpdeHelp = providers.exec {
-      executable(gpde.get())
+    val datalyzerHelp = providers.exec {
+      executable(datalyzer.get())
       args("--help")
     }.standardOutput.asText
 
     val readmeText = readme.readText()
-    val startIndex = readmeText.indexOf(gpdeOptionsStartTag)
-      .takeIf { it > 0 } ?: error("README is missing gpde-options block")
-    val endIndex = readmeText.indexOf("```", startIndex = startIndex + gpdeOptionsStartTag.length)
-      .takeIf { it > 0 } ?: error("could not find end of gpde-options block")
+    val startIndex = readmeText.indexOf(optionsBlockStartTag)
+      .takeIf { it > 0 } ?: error("README is missing datalyzer-options block")
+    val endIndex = readmeText.indexOf("```", startIndex = startIndex + optionsBlockStartTag.length)
+      .takeIf { it > 0 } ?: error("could not find end of datalyzer-options block")
 
     val updatedReadme = readmeText.replaceRange(
       startIndex = startIndex,
       endIndex = endIndex,
       replacement = """
-        |$gpdeOptionsStartTag
-        |${gpdeHelp.get()}
+        |$optionsBlockStartTag
+        |${datalyzerHelp.get()}
       """.trimMargin(),
     )
 

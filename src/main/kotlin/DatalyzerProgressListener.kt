@@ -1,20 +1,20 @@
 // SPDX-FileCopyrightText: © 2024 JetBrains s.r.o.
 // SPDX-License-Identifier: Apache-2.0
-package org.jetbrains.experimental.gpde
+package org.jetbrains.experimental.gradle.datalyzer
 
 import com.github.ajalt.mordant.animation.Animation
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.tooling.events.ProgressEvent
 import org.gradle.tooling.events.ProgressListener
-import org.jetbrains.experimental.gpde.data.ProgressEventData
-import org.jetbrains.experimental.gpde.utils.truncate
+import org.jetbrains.experimental.gradle.datalyzer.data.ProgressEventData
+import org.jetbrains.experimental.gradle.datalyzer.utils.truncate
 import java.io.BufferedWriter
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.DurationUnit.SECONDS
 import kotlin.time.TimeSource
 
-internal class GpdeProgressListener(
+internal class DatalyzerProgressListener(
   private val output: BufferedWriter,
   private val taskStatusAnim: Animation<String>,
 ) : ProgressListener {

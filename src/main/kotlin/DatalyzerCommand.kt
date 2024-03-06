@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: © 2024 JetBrains s.r.o.
 // SPDX-License-Identifier: Apache-2.0
-package org.jetbrains.experimental.gpde
+package org.jetbrains.experimental.gradle.datalyzer
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.terminal
@@ -14,8 +14,8 @@ import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.idea.IdeaProject
-import org.jetbrains.experimental.gpde.handlers.GradleProjectModelHandler
-import org.jetbrains.experimental.gpde.utils.replaceNonAlphaNumeric
+import org.jetbrains.experimental.gradle.datalyzer.handlers.GradleProjectModelHandler
+import org.jetbrains.experimental.gradle.datalyzer.utils.replaceNonAlphaNumeric
 import java.nio.file.Path
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
@@ -23,7 +23,7 @@ import kotlin.io.path.*
 import kotlin.time.measureTime
 
 
-internal class GpdeCommand : CliktCommand() {
+internal class DatalyzerCommand : CliktCommand() {
 
   private val gradleProjectDir: Path by option("--projectDir", help = "Location of the Gradle Project")
     .path()
@@ -35,7 +35,7 @@ internal class GpdeCommand : CliktCommand() {
     .defaultLazy {
       val datetime = OffsetDateTime.now().format(ISO_OFFSET_DATE_TIME)
       val reportDir = "${gradleProjectDir.absolute().name}-${datetime}".replaceNonAlphaNumeric()
-      Path("./gpde-reports/$reportDir/")
+      Path("./datalyzer-reports/$reportDir/")
     }
     .check("Must be an empty directory") {
       !it.exists() || it.isDirectory() && it.walk().drop(1).count() == 0
@@ -137,7 +137,7 @@ internal class GpdeCommand : CliktCommand() {
 
         val time = measureTime {
           try {
-            val listener = GpdeProgressListener(taskData, taskStatusAnim)
+            val listener = DatalyzerProgressListener(taskData, taskStatusAnim)
 
             connection.newBuild().apply {
               addProgressListener(listener)

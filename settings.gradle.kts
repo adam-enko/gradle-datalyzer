@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: © 2024 JetBrains s.r.o.
 // SPDX-License-Identifier: Apache-2.0
-rootProject.name = "gradle-project-data-extractor"
+rootProject.name = "gradle-datalyzer"
 
 pluginManagement {
   repositories {

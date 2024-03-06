@@ -1,7 +1,7 @@
 .gradle/
 build/
 
-gpde-reports/
+datalyzer-reports/
 
 .idea/**
 !.idea/codeStyles/

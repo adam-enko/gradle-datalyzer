@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: © 2024 JetBrains s.r.o.
 // SPDX-License-Identifier: Apache-2.0
-package org.jetbrains.experimental.gpde.data
+package org.jetbrains.experimental.gradle.datalyzer.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -28,7 +28,7 @@ import org.gradle.tooling.events.transform.TransformSuccessResult
 import org.gradle.tooling.events.work.WorkItemFailureResult
 import org.gradle.tooling.events.work.WorkItemOperationResult
 import org.gradle.tooling.events.work.WorkItemSuccessResult
-import org.jetbrains.experimental.gpde.data.FailureResultData.FailureData
+import org.jetbrains.experimental.gradle.datalyzer.data.FailureResultData.FailureData
 
 
 @Suppress("UnstableApiUsage")

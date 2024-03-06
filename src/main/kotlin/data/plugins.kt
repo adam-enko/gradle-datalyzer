@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: © 2024 JetBrains s.r.o.
 // SPDX-License-Identifier: Apache-2.0
-package org.jetbrains.experimental.gpde.data
+package org.jetbrains.experimental.gradle.datalyzer.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: © 2024 JetBrains s.r.o.
 // SPDX-License-Identifier: Apache-2.0
-package org.jetbrains.experimental.gpde.handlers
+package org.jetbrains.experimental.gradle.datalyzer.handlers
 
 import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.model.GradleProject
-import org.jetbrains.experimental.gpde.Reporter
+import org.jetbrains.experimental.gradle.datalyzer.Reporter
 
 internal class GradleProjectModelHandler(
   private val reporter: Reporter,
