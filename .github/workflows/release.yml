@@ -1,0 +1,56 @@
+name: Releases
+
+on:
+  workflow_dispatch:
+    inputs:
+      checkout-ref:
+        description: "The branch, tag or SHA to checkout. See actions/checkout 'ref'."
+        required: false
+        type: string
+  push:
+    branches: [ main ]
+  release:
+    types: [ created ]
+
+
+concurrency:
+  group: "Releases: ${{ github.workflow }} @ ${{ inputs.checkout-ref }} ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
+  cancel-in-progress: false
+
+
+jobs:
+
+  tests:
+    if: startsWith(github.ref, 'refs/tags/')
+    uses: ./.github/workflows/run_tests.yml
+    permissions:
+      checks: write
+      contents: read
+    with:
+      checkout-ref: ${{ inputs.checkout-ref }}
+
+
+  build-datalyzer-zip:
+    needs: tests
+    uses: ./.github/workflows/run_gradle_task.yml
+    with:
+      runs-on: ubuntu-latest
+      gradle-task: distZip
+      checkout-ref: ${{ inputs.checkout-ref }}
+
+
+  publish-github-release:
+    needs: build-datalyzer-zip
+    steps:
+
+      - name: Download datalyzer.zip
+        uses: actions/download-artifact@v4
+        with:
+          name: "datalyzer.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          generate_release_notes: true
+          files: "datalyzer.zip"
