@@ -6,6 +6,20 @@ Datalyzer is only intended to be used by JetBrains research participants.
 
 ### Usage
 
+##### Quickstart
+
+*Linux/Mac*
+
+```shell
+cd /path/to/gradle-project/
+curl -LO https://github.com/adam-enko/gradle-datalyzer/releases/latest/download/datalyzer.zip
+unzip datalyzer.zip
+# run datalyzer:
+./datalyzer/bin/datalyzer
+```
+
+### Instructions
+
 > [!IMPORTANT]  
 > Datalyzer must be run with the same Java version used to run Gradle,
 > otherwise the project's build scripts might not be run correctly.
@@ -15,6 +29,7 @@ Datalyzer is only intended to be used by JetBrains research participants.
 
 1. Download the latest `datalyzer.zip` from
    [the GitHub releases page](https://github.com/adam-enko/gradle-datalyzer/releases).
+
 2. Unzip Datalyzer into the project directory to be analyzed.
 3. Run Datalyzer:
 

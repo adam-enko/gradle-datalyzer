@@ -8,6 +8,7 @@ plugins {
   kotlin("jvm") version embeddedKotlinVersion
   kotlin("plugin.serialization") version embeddedKotlinVersion
   application
+  id("dev.jacomet.logging-capabilities") version "0.11.0"
 }
 
 group = "org.jetbrains.experimental.gradle.datalyzer"
@@ -19,11 +20,18 @@ project.version = object {
 dependencies {
   implementation("org.gradle:gradle-tooling-api:8.6")
 
+  implementation("org.slf4j:slf4j-simple:2.0.12")
+  implementation("org.slf4j:slf4j-api:2.0.12")
+
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
   implementation("com.github.ajalt.clikt:clikt:4.2.2")
 
   testImplementation(kotlin("test"))
+}
+
+loggingCapabilities {
+  enforceSlf4JSimple()
 }
 
 application {
