@@ -7,8 +7,6 @@ on:
         description: "The branch, tag or SHA to checkout. See actions/checkout 'ref'."
         required: false
         type: string
-  release:
-    types: [ published ]
 
 
 concurrency:
@@ -29,33 +27,3 @@ jobs:
       contents: read
     with:
       checkout-ref: ${{ inputs.checkout-ref }}
-
-
-  build-datalyzer-zip:
-    needs: tests
-    uses: ./.github/workflows/run_gradle_task.yml
-    permissions:
-      checks: write
-      contents: read
-    with:
-      runs-on: ubuntu-latest
-      gradle-task: distZip
-      checkout-ref: ${{ inputs.checkout-ref }}
-
-
-  publish-github-release:
-    needs: build-datalyzer-zip
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - name: Download datalyzer.zip
-        uses: actions/download-artifact@v4
-        with:
-          name: "datalyzer.zip"
-
-      - name: Upload datalyzer.zip
-        shell: bash
-        run: |
-          gh release upload ${{github.event.release.tag_name}} datalyzer.zip
-        env:
-          GITHUB_TOKEN: ${{ github.TOKEN }}
