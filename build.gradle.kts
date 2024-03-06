@@ -46,7 +46,6 @@ tasks.distTar {
   archiveVersion.set("")
 }
 
-
 val updateReadMeUsage by tasks.registering {
   group = project.name
 
