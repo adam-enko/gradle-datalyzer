@@ -6,6 +6,13 @@ Datalyzer is only intended to be used by JetBrains research participants.
 
 ### Usage
 
+> [!IMPORTANT]  
+> Datalyzer must be run with the same Java version used to run Gradle,
+> otherwise the project's build scripts might not be run correctly.
+>
+> The easiest way to do this is to run Datalyzer in the same directory
+> as the Gradle project being analyzed.
+
 1. Download Datalyzer from the GitHub releases page.
 2. Unzip Datalyzer into the project directory to be analyzed.
 3. Run Datalyzer:
@@ -23,9 +30,6 @@ Datalyzer is only intended to be used by JetBrains research participants.
     ```                      
 4. Wait for the report to finish.
 5. Share the zipped report.
-
-> [!IMPORTANT]  
-> datalyzer must be run with the same Java version used to run Gradle.
 
 ### Options
 
