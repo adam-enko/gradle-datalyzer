@@ -20,6 +20,8 @@ unzip datalyzer.zip
 
 # run datalyzer
 ./datalyzer/bin/datalyzer
+
+# After datalyzer has finished, please share the zip file in ./datalyzer-reports/
 ```
 
 ### Instructions
