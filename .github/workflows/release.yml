@@ -41,6 +41,7 @@ jobs:
 
   publish-github-release:
     needs: build-datalyzer-zip
+    runs-on: ubuntu-latest
     steps:
 
       - name: Download datalyzer.zip
