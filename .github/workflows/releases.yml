@@ -65,4 +65,3 @@ jobs:
           gh release upload ${{ github.event.release.tag_name || inputs.checkout-ref }} datalyzer.zip
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
-          GH_REPO: ${{ github.event.repository.name }}
