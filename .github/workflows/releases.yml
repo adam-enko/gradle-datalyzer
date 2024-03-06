@@ -35,8 +35,6 @@ jobs:
   build-datalyzer-zip:
 #    needs: tests
     uses: ./.github/workflows/run_gradle_task.yml
-    # only run if a release is created
-    if: github.event.release.name
     permissions:
       checks: write
       contents: read
