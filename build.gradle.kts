@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: © 2024 JetBrains s.r.o.
 // SPDX-License-Identifier: Apache-2.0
+import org.gradle.api.tasks.PathSensitivity.NONE
 import org.gradle.kotlin.dsl.support.serviceOf
 
 plugins {
@@ -58,15 +59,15 @@ val updateReadMeUsage by tasks.registering {
   val readme = file("README.md")
   outputs.file(readme).withPropertyName("readme")
 
-  val gpde = tasks.installDist.map { it.destinationDir.resolve("bin/gpde") }
   dependsOn(tasks.installDist)
+  val gpde = tasks.installDist.map { it.destinationDir.resolve("bin/gpde") }
+  inputs.file(gpde).withPropertyName("gpde").withPathSensitivity(NONE)
 
   onlyIf { "win" !in System.getProperty("os.name").lowercase() }
 
   val providers = serviceOf<ProviderFactory>()
 
-  val gpdeOptionsStartTag = "<!--start:gpde-options-->"
-  val gpdeOptionsEndTag = "<!--end:gpde-options-->"
+  val gpdeOptionsStartTag = "```shell gpde-options"
 
   doLast {
     @Suppress("UnstableApiUsage")
@@ -76,19 +77,17 @@ val updateReadMeUsage by tasks.registering {
     }.standardOutput.asText
 
     val readmeText = readme.readText()
-    val startIndex = readmeText.indexOf(gpdeOptionsStartTag).takeIf { it > 0 } ?: error("missing gpdeOptionsStartTag")
-    val endIndex = readmeText.indexOf(gpdeOptionsEndTag).takeIf { it > 0 } ?: error("missing gpdeOptionsEndTag")
+    val startIndex = readmeText.indexOf(gpdeOptionsStartTag)
+      .takeIf { it > 0 } ?: error("README is missing gpde-options block")
+    val endIndex = readmeText.indexOf("```", startIndex = startIndex + gpdeOptionsStartTag.length)
+      .takeIf { it > 0 } ?: error("could not find end of gpde-options block")
 
     val updatedReadme = readmeText.replaceRange(
       startIndex = startIndex,
       endIndex = endIndex,
       replacement = """
         |$gpdeOptionsStartTag
-        |
-        |```shell
         |${gpdeHelp.get()}
-        |```
-        |
       """.trimMargin(),
     )
 

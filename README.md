@@ -1,39 +1,41 @@
 # Gradle Project Data Extractor
 
-Gradle Project Data Extractor (gpde) is an _experimental_ tool for gathering information about a Gradle project.
+Gradle Project Data Extractor (gpde) is a tool for gathering an overview about a Gradle project.
 
-gpde is used to extract basic information about a Gradle project.
-
-A report is generated into
+gpde is only intended to be used by JetBrains research participants.
 
 ### Usage
 
 1. Download gpde from the GitHub releases page.
-2. Unzip gpde into the
+2. Unzip gpde into the project directory to be analyzed.
+3. Run gpde:
 
-###### Linux/Mac
+   > [!IMPORTANT]  
+   > gpde must be run with the same Java version used to run Gradle
 
-```shell
-./gpde/bin/gpde
-```
+   *Linux/Mac*
 
-###### Windows
+    ```shell
+    ./gpde/bin/gpde
+    ```
 
-```shell
-./gpde/bin/gpde.bat
-```
+   *Windows*
+
+    ```shell
+    .\gpde\bin\gpde.bat
+    ```                      
+4. Wait for the report to finish.
+5. Share the zipped report.
 
 ### Options
 
-<!--start:gpde-options-->
+<!-- Do not edit gpde-options - they are automatically generated -->
 
-```shell
+```shell gpde-options
 Usage: gpde [<options>]
 
 Options:
   --projectDir=<path>  Location of the Gradle Project
   --reportsDir=<path>  Output reports directory
   -h, --help           Show this message and exit
-
 ```
-<!--end:gpde-options-->
