@@ -14,6 +14,9 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.*
 
+/**
+ * Gather information about the Gradle project, and save it to disk.
+ */
 internal class Reporter(
   private val reportsDir: Path,
   private val terminal: Terminal,
