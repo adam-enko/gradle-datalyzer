@@ -11,10 +11,14 @@ Datalyzer is only intended to be used by JetBrains research participants.
 *Linux/Mac*
 
 ```shell
+# cd into the project directory to analyze
 cd /path/to/gradle-project/
+
+# download and unzip the latest datalyzer release
 curl -LO https://github.com/adam-enko/gradle-datalyzer/releases/latest/download/datalyzer.zip
 unzip datalyzer.zip
-# run datalyzer:
+
+# run datalyzer
 ./datalyzer/bin/datalyzer
 ```
 
