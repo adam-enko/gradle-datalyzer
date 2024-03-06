@@ -11,13 +11,10 @@ on:
   push:
     branches: [ main ]
 
-  release:
-    types: [ published ]
-
 
 concurrency:
   group: "Main: ${{ github.workflow }} @ ${{ inputs.checkout-ref }} ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 
 permissions:
@@ -33,36 +30,3 @@ jobs:
       contents: read
     with:
       checkout-ref: ${{ inputs.checkout-ref }}
-
-
-  build-datalyzer-zip:
-    needs: tests
-    uses: ./.github/workflows/run_gradle_task.yml
-    # only run if a release is created
-    if: github.event.release.name
-    permissions:
-      checks: write
-      contents: read
-    with:
-      runs-on: ubuntu-latest
-      gradle-task: distZip
-      checkout-ref: ${{ inputs.checkout-ref }}
-
-
-  publish-github-release:
-    needs: build-datalyzer-zip
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Download datalyzer.zip
-        uses: actions/download-artifact@v4
-        with:
-          name: "datalyzer.zip"
-
-      - name: Upload datalyzer.zip
-        shell: bash
-        run: |
-          gh release upload ${{ github.event.release.tag_name }} datalyzer.zip
-        env:
-          GITHUB_TOKEN: ${{ github.TOKEN }}
-          GH_REPO: ${{ github.event.repository.name }}
