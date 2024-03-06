@@ -1,0 +1,17 @@
+Reusing configuration cache.
+> Task :processResources NO-SOURCE
+> Task :checkKotlinGradlePluginConfigurationErrors
+> Task :compileKotlin UP-TO-DATE
+> Task :compileJava NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar UP-TO-DATE
+> Task :startScripts UP-TO-DATE
+> Task :installDist UP-TO-DATE
+> Task :distTar
+> Task :updateReadMeUsage
+> Task :distZip
+> Task :assemble
+
+BUILD SUCCESSFUL in 457ms
+8 actionable tasks: 4 executed, 4 up-to-date
+Configuration cache entry reused.

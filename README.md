@@ -65,3 +65,13 @@ Options:
   --reportsDir=<path>  Output reports directory
   -h, --help           Show this message and exit
 ```
+
+### Captured data
+
+Datalyzer uses the Gradle Tooling API to capture
+
+* build scripts
+* basic task output
+* Gradle events
+
+An example report is available in [./docs/example-report/](./docs/example-report/).

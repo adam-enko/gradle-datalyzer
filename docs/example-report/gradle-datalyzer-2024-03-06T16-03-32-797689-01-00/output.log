@@ -1,0 +1,21 @@
+finding all projects for GradleProject{path=':'}
+  found project GradleProject{path=':'}
+collected buildscript for gradle-datalyzer
+buildEnvironment.gradle.gradleVersion 8.6
+buildEnvironment.buildIdentifier build=/Users/dev/projects/jetbrains/gradle/gradle-datalyzer/.
+buildEnvironment.java.javaHome /Library/Java/JavaVirtualMachines/temurin-11.jdk/Contents/Home
+buildEnvironment.java.jvmArguments --add-opens=java.base/java.util=ALL-UNNAMED, --add-opens=java.base/java.lang=ALL-UNNAMED, --add-opens=java.base/java.lang.invoke=ALL-UNNAMED, --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED, --add-opens=java.base/java.nio.charset=ALL-UNNAMED, --add-opens=java.base/java.net=ALL-UNNAMED, --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED, -Dfile.encoding=UTF-8, -Duser.country=NL, -Duser.language=en, -Duser.variant
+sourceDirectory - gradle-datalyzer - src : /Users/dev/projects/jetbrains/gradle/gradle-datalyzer/src/main/java
+sourceDirectory - gradle-datalyzer - src : /Users/dev/projects/jetbrains/gradle/gradle-datalyzer/src/main/kotlin
+Running task help, args:[--no-configuration-cache, --no-build-cache, --rerun-tasks]
+ ~ finished running help in 1.036827292s
+Running task tasks, args:[]
+ ~ finished running tasks in 56.867583ms
+Running task assemble, args:[--dry-run]
+ ~ finished running assemble in 242.401167ms
+Running task check, args:[--dry-run]
+ ~ finished running check in 243.686333ms
+Running task build, args:[--dry-run]
+ ~ finished running build in 238.072959ms
+Running task assemble, args:[]
+ ~ finished running assemble in 478.831583ms
