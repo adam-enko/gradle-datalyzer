@@ -8,18 +8,16 @@ plugins {
   kotlin("jvm") version embeddedKotlinVersion
   kotlin("plugin.serialization") version embeddedKotlinVersion
   application
-  id("dev.jacomet.logging-capabilities") version "0.11.0"
 }
 
 group = "org.jetbrains.experimental.gradle.datalyzer"
-version = "0.0.0-SNAPSHOT"
+project.version = object {
+  private val gitVersion = project.gitVersion
+  override fun toString(): String = gitVersion.get()
+}
 
 dependencies {
-  implementation(kotlin("reflect"))
   implementation("org.gradle:gradle-tooling-api:8.6")
-
-  implementation("org.slf4j:slf4j-simple:2.0.12")
-  implementation("org.slf4j:slf4j-api:2.0.12")
 
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
@@ -31,10 +29,6 @@ dependencies {
 application {
   applicationName = "datalyzer"
   mainClass = "org.jetbrains.experimental.gradle.datalyzer.MainKt"
-}
-
-loggingCapabilities {
-  enforceSlf4JSimple()
 }
 
 kotlin {
