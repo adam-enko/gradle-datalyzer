@@ -95,7 +95,7 @@ jobs:
 
       - name: Execute Gradle build
         run: >-
-          ${{ inputs.gradle-task }}
+          ./gradlew ${{ inputs.gradle-task }}
 
       - name: Upload datalyzer.zip
         uses: actions/upload-artifact@v4
