@@ -1,3 +1,9 @@
+# Gradle Project Data Extractor
+
+Gradle Project Data Extractor (GPDE) is an _experimental_ tool for gathering information about a Gradle project.
+
+It is used to answer questions about a Gradle project in a:
+
 Required information:
 
 1. How many Kotlin/Groovy scripts used in the build?

@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: © 2024 JetBrains s.r.o.
+// SPDX-License-Identifier: Apache-2.0
 package org.jetbrains.experimental.gpde
 
 import com.github.ajalt.mordant.terminal.Terminal
@@ -6,6 +8,8 @@ import java.io.BufferedOutputStream
 import java.io.BufferedWriter
 import java.io.File
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption.APPEND
+import java.nio.file.StandardOpenOption.SYNC
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.*
@@ -29,7 +33,7 @@ internal class Reporter(
     projectName: String,
     script: File?,
   ) {
-    scripts.bufferedWriter().use { writer ->
+    scripts.bufferedWriter(options = arrayOf(APPEND, SYNC)).use { writer ->
 
       val contents = if (script?.exists() == true) {
         """
@@ -54,6 +58,7 @@ internal class Reporter(
       }
 
       writer.appendLine(contents)
+      writer.flush()
     }
   }
 
@@ -73,13 +78,25 @@ internal class Reporter(
       .bufferedWriter()
   }
 
+  fun logInfo(msg: String) {
+    terminal.info(msg)
+    logWriter.appendLine(msg)
+    logWriter.flush()
+  }
+
+  fun logWarning(msg: String) {
+    terminal.warning(msg)
+    logWriter.appendLine(msg)
+    logWriter.flush()
+  }
+
   fun log(msg: String) {
     terminal.muted(msg)
     logWriter.appendLine(msg)
     logWriter.flush()
   }
 
-  fun zip(): String {
+  fun zip(): Path {
     val zipFile = reportsDir.parent.resolve("${reportsDir.name}.zip").apply {
       if (exists()) deleteExisting()
       createFile()
@@ -101,6 +118,6 @@ internal class Reporter(
       }
     }
 
-    return zipFile.name
+    return zipFile
   }
 }
