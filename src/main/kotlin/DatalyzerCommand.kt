@@ -34,7 +34,7 @@ internal class DatalyzerCommand : CliktCommand() {
     .path()
     .defaultLazy {
       val datetime = OffsetDateTime.now().format(ISO_OFFSET_DATE_TIME)
-      val reportDir = "${gradleProjectDir.absolute().name}-${datetime}".replaceNonAlphaNumeric()
+      val reportDir = "${gradleProjectDir.normalize().absolute().name}-${datetime}".replaceNonAlphaNumeric()
       Path("./datalyzer-reports/$reportDir/")
     }
     .check("Must be an empty directory") {
