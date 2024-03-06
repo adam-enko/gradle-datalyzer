@@ -13,7 +13,7 @@ Datalyzer is only intended to be used by JetBrains research participants.
 > The easiest way to do this is to run Datalyzer in the same directory
 > as the Gradle project being analyzed.
 
-1. Download Datalyzer from the GitHub releases page.
+1. Download Datalyzer from [the GitHub releases page](https://github.com/adam-enko/gradle-datalyzer/releases).
 2. Unzip Datalyzer into the project directory to be analyzed.
 3. Run Datalyzer:
 
