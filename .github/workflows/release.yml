@@ -33,6 +33,9 @@ jobs:
   build-datalyzer-zip:
     needs: tests
     uses: ./.github/workflows/run_gradle_task.yml
+    permissions:
+      checks: write
+      contents: read
     with:
       runs-on: ubuntu-latest
       gradle-task: distZip
