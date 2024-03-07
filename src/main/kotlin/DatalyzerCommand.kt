@@ -28,7 +28,7 @@ internal class DatalyzerCommand : CliktCommand() {
   private val gradleProjectDir: Path by option("--projectDir", help = "Location of the Gradle Project")
     .path()
     .default(Path(".").absolute())
-    .check("Must be a directory, but was a file") { it.isDirectory() }
+    .check("Must be a root directory of a Gradle Project") { it.exists() && it.isDirectory() }
 
   private val reportsDir: Path by option("--reportsDir", help = "Output reports directory")
     .path()
