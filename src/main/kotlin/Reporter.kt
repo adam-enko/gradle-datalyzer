@@ -3,7 +3,6 @@
 package org.jetbrains.experimental.gradle.datalyzer
 
 import com.github.ajalt.mordant.terminal.Terminal
-import org.jetbrains.experimental.gradle.datalyzer.utils.replaceNonAlphaNumeric
 import java.io.BufferedOutputStream
 import java.io.BufferedWriter
 import java.io.File
@@ -13,19 +12,24 @@ import java.nio.file.StandardOpenOption.SYNC
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.*
+import org.jetbrains.experimental.gradle.datalyzer.utils.replaceNonAlphaNumeric
 
 /**
  * Gather information about the Gradle project, and save it to disk.
  */
 internal class Reporter(
-  private val reportsDir: Path,
+  reportsDir: Path,
   private val terminal: Terminal,
 ) {
-  private val scripts = reportsDir.resolve("scripts.md")
-  private val log = reportsDir.resolve("output.log")
+  private val reportZip = reportsDir.resolve("${reportsDir.name}.zip")
+  private val dataDir = reportsDir.resolve("data")
+
+  private val scripts = dataDir.resolve("scripts.md")
+  private val log = dataDir.resolve("output.log")
 
   init {
     reportsDir.createDirectories()
+    dataDir.createDirectories()
     scripts.createFile()
     log.createFile()
   }
@@ -67,7 +71,7 @@ internal class Reporter(
 
 
   fun taskOutput(taskName: String): BufferedOutputStream {
-    return reportsDir
+    return dataDir
       .resolve("task-stdout-${taskName.replaceNonAlphaNumeric()}-${System.currentTimeMillis()}.txt")
       .createFile()
       .outputStream()
@@ -75,7 +79,7 @@ internal class Reporter(
   }
 
   fun taskData(taskName: String): BufferedWriter {
-    return reportsDir
+    return dataDir
       .resolve("task-data-${taskName.replaceNonAlphaNumeric()}-${System.currentTimeMillis()}.txt")
       .createFile()
       .bufferedWriter()
@@ -100,15 +104,15 @@ internal class Reporter(
   }
 
   fun zip(): Path {
-    val zipFile = reportsDir.parent.resolve("${reportsDir.name}.zip").apply {
+    val zipFile = reportZip.apply {
       if (exists()) deleteExisting()
       createFile()
     }
 
     ZipOutputStream(zipFile.outputStream().buffered()).use { zip ->
-      reportsDir.walk().forEach { src ->
+      dataDir.walk().forEach { src ->
         val zipFileName = src.absolute().invariantSeparatorsPathString
-          .removePrefix(reportsDir.absolute().invariantSeparatorsPathString)
+          .removePrefix(dataDir.absolute().invariantSeparatorsPathString)
           .removePrefix("/")
           .let { if (src.isDirectory()) "$it/" else it }
 
