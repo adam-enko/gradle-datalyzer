@@ -3,7 +3,6 @@
 package org.jetbrains.experimental.gradle.datalyzer
 
 import com.github.ajalt.mordant.terminal.Terminal
-import org.jetbrains.experimental.gradle.datalyzer.utils.replaceNonAlphaNumeric
 import java.io.BufferedOutputStream
 import java.io.BufferedWriter
 import java.io.File
@@ -13,6 +12,7 @@ import java.nio.file.StandardOpenOption.SYNC
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.*
+import org.jetbrains.experimental.gradle.datalyzer.utils.replaceNonAlphaNumeric
 
 /**
  * Gather information about the Gradle project, and save it to disk.
@@ -21,7 +21,7 @@ internal class Reporter(
   reportsDir: Path,
   private val terminal: Terminal,
 ) {
-  private val reportZip = reportsDir.resolve("report.zip")
+  private val reportZip = reportsDir.resolve("${reportsDir.name}.zip")
   private val dataDir = reportsDir.resolve("data")
 
   private val scripts = dataDir.resolve("scripts.md")
